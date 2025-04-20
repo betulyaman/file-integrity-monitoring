@@ -1,62 +1,75 @@
-;
-; fim.inf
-;
-
 [Version]
-Signature   = "$WINDOWS NT$"
-Class       = System ; TODO: specify appropriate Class
-ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
-Provider    = %ManufacturerName%
+Signature   = "$Windows NT$"
+Class       = "ActivityMonitor"
+ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}
+Provider    = %ProviderString%
+DriverVer   = 04/15/2025,1.0.0.0
 CatalogFile = fim.cat
-DriverVer   = ; TODO: set DriverVer in stampinf property pages
 PnpLockdown = 1
-
-[DestinationDirs]
-DefaultDestDir = 13
-
-[SourceDisksNames]
-1 = %DiskName%,,,""
 
 [SourceDisksFiles]
 fim.sys = 1,,
 
-;*****************************************
-; Install Section
-;*****************************************
+[SourceDisksNames]
+1 = %DiskId1%,,,
 
-[Manufacturer]
-%ManufacturerName% = Standard,NT$ARCH$.10.0...16299 ; %13% support introduced in build 16299
+[DestinationDirs]
+FIM.Files = 12 ;driver store
 
-[Standard.NT$ARCH$.10.0...16299]
-%fim.DeviceDesc% = fim_Device, Root\fim ; TODO: edit hw-id
+;;
+;; Default install sections
+;;
 
-[fim_Device.NT]
-CopyFiles = File_Copy
+[DefaultInstall.NT$ARCH$]
+OptionDesc          = %ServiceDescription%
+CopyFiles           = FIM.Files,
 
-[File_Copy]
-fim.sys
+[DefaultInstall.NT$ARCH$.Services]
+AddService          = %ServiceName%,,FIM.Service
 
-;-------------- Service installation
-[fim_Device.NT.Services]
-AddService = fim,%SPSVCINST_ASSOCSERVICE%, fim_Service_Inst
+;
+; Support sections
+;
 
-; -------------- fim driver install sections
-[fim_Service_Inst]
-DisplayName    = %fim.SVCDESC%
-ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
-StartType      = 3               ; SERVICE_DEMAND_START
-ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %13%\fim.sys
+[FIM.Service]
+DisplayName      = %ServiceName%
+Description      = %ServiceDescription%
+ServiceBinary    = %13%\%DriverName%.sys        ;%windir%\system32\drivers\
+Dependencies     = FltMgr
+ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
+StartType        = 3                            ;SERVICE_DEMAND_START
+ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
+LoadOrderGroup   = "FSFilter Activity Monitor"
+AddReg           = FIM.AddRegistry
 
-[fim_Device.NT.Wdf]
-KmdfService = fim, fim_wdfsect
+[FIM.AddRegistry]
+HKR,"Parameters","SupportedFeatures",0x00010001,0x3
+HKR,"Parameters\Instances","DefaultInstance",0x00000000,%DefaultInstance%
+HKR,"Parameters\Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
+HKR,"Parameters\Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
+HKR,"Parameters\Instances\"%Instance2.Name%,"Altitude",0x00000000,%Instance2.Altitude%
+HKR,"Parameters\Instances\"%Instance2.Name%,"Flags",0x00010001,%Instance2.Flags%
+HKR,"Parameters\Instances\"%Instance3.Name%,"Altitude",0x00000000,%Instance3.Altitude%
+HKR,"Parameters\Instances\"%Instance3.Name%,"Flags",0x00010001,%Instance3.Flags%
 
-[fim_wdfsect]
-KmdfLibraryVersion = $KMDFVERSION$
+[FIM.Files]
+%DriverName%.sys
 
 [Strings]
-SPSVCINST_ASSOCSERVICE = 0x00000002
-ManufacturerName = "<Your manufacturer name>" ;TODO: Replace with your manufacturer name
-DiskName = "fim Installation Disk"
-fim.DeviceDesc = "fim Device"
-fim.SVCDESC = "fim Service"
+ProviderString          = "TODO-Set-Provider"
+ServiceDescription      = "FIM mini-filter driver"
+ServiceName             = "FIM"
+DriverName              = "fim"
+DiskId1                 = "FIM Device Installation Disk"
+
+;Instances specific information.
+DefaultInstance         = "FIM - Top Instance"
+Instance1.Name          = "FIM - Middle Instance"
+Instance1.Altitude      = "370000"
+Instance1.Flags         = 0x0          ; Suppress automatic attachments
+Instance2.Name          = "FIM - Bottom Instance"
+Instance2.Altitude      = "361000"
+Instance2.Flags         = 0x0          ; Suppress automatic attachments
+Instance3.Name          = "FIM - Top Instance"
+Instance3.Altitude      = "385100"
+Instance3.Flags         = 0x0          ; Suppress automatic attachments

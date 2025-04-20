@@ -24,8 +24,37 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="fim.c">
+    <ClCompile Include="registration.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="event_handler.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="communication.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="minifilter.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="listener.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pending_operation_list.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="communication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="event_handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="minifilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pending_operation_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -70,6 +70,7 @@
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <Inf2CatUseLocalTime>true</Inf2CatUseLocalTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -85,7 +86,7 @@
       <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
     </DriverSign>
     <Link>
-      <AdditionalDependencies>fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltmgr.lib;NtosKrnl.lib;Ntstrsafe.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -110,7 +111,18 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="fim.c" />
+    <ClCompile Include="communication.c" />
+    <ClCompile Include="event_handler.c" />
+    <ClCompile Include="minifilter.c" />
+    <ClCompile Include="listener.c" />
+    <ClCompile Include="pending_operation_list.c" />
+    <ClCompile Include="registration.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="minifilter.h" />
+    <ClInclude Include="communication.h" />
+    <ClInclude Include="event_handler.h" />
+    <ClInclude Include="pending_operation_list.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
