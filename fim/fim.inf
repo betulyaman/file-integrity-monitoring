@@ -47,10 +47,10 @@ HKR,"Parameters","SupportedFeatures",0x00010001,0x3
 HKR,"Parameters\Instances","DefaultInstance",0x00000000,%DefaultInstance%
 HKR,"Parameters\Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
 HKR,"Parameters\Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
-HKR,"Parameters\Instances\"%Instance2.Name%,"Altitude",0x00000000,%Instance2.Altitude%
-HKR,"Parameters\Instances\"%Instance2.Name%,"Flags",0x00010001,%Instance2.Flags%
-HKR,"Parameters\Instances\"%Instance3.Name%,"Altitude",0x00000000,%Instance3.Altitude%
-HKR,"Parameters\Instances\"%Instance3.Name%,"Flags",0x00010001,%Instance3.Flags%
+;HKR,"Parameters\Instances\"%Instance2.Name%,"Altitude",0x00000000,%Instance2.Altitude%
+;HKR,"Parameters\Instances\"%Instance2.Name%,"Flags",0x00010001,%Instance2.Flags%
+;HKR,"Parameters\Instances\"%Instance3.Name%,"Altitude",0x00000000,%Instance3.Altitude%
+;HKR,"Parameters\Instances\"%Instance3.Name%,"Flags",0x00010001,%Instance3.Flags%
 
 [FIM.Files]
 %DriverName%.sys
@@ -63,13 +63,13 @@ DriverName              = "fim"
 DiskId1                 = "FIM Device Installation Disk"
 
 ;Instances specific information.
-DefaultInstance         = "FIM - Top Instance"
+DefaultInstance         = "FIM - Middle Instance"
 Instance1.Name          = "FIM - Middle Instance"
 Instance1.Altitude      = "370000"
-Instance1.Flags         = 0x0          ; Suppress automatic attachments
-Instance2.Name          = "FIM - Bottom Instance"
-Instance2.Altitude      = "361000"
-Instance2.Flags         = 0x0          ; Suppress automatic attachments
-Instance3.Name          = "FIM - Top Instance"
-Instance3.Altitude      = "385100"
-Instance3.Flags         = 0x0          ; Suppress automatic attachments
+Instance1.Flags         = 0x1          ; Suppress automatic attachments
+;Instance2.Name          = "FIM - Bottom Instance"
+;Instance2.Altitude      = "361000"
+;Instance2.Flags         = 0x1          ; Suppress automatic attachments
+;Instance3.Name          = "FIM - Top Instance"
+;Instance3.Altitude      = "385100"
+;Instance3.Flags         = 0x1          ; Suppress automatic attachments

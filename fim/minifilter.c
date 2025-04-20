@@ -53,7 +53,6 @@ NTSTATUS filter_unload_callback(FLT_FILTER_UNLOAD_FLAGS flags)
 		g_context.registered_filter = NULL;
 	}
 
-
 	// clear pending queue TODO
 
 	return STATUS_SUCCESS;

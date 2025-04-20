@@ -88,6 +88,9 @@
     <Link>
       <AdditionalDependencies>fltmgr.lib;NtosKrnl.lib;Ntstrsafe.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\workspace\file_integrity_monitoring\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DriverSign>

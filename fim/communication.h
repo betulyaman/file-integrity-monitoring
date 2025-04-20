@@ -3,18 +3,7 @@
 
 #include <fltKernel.h>
 
-#define COMMUNICATION_PORT_NAME L"\\CommunicationPort"
-
-typedef struct {
-	ULONG operation_id;
-	//UINT8 operation_type;
-	WCHAR file_name[260];
-} FIM_MESSAGE;
-
-typedef struct {
-	ULONG operation_id;
-	BOOLEAN allow;
-} USER_REPLY;
+#include "communication_info.h"
 
 NTSTATUS connect_notify_callback(
 	_In_ PFLT_PORT client_port,
