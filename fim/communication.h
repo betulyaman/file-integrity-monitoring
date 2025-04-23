@@ -12,8 +12,7 @@ NTSTATUS connect_notify_callback(
 	_In_ ULONG size_of_context,
 	_Outptr_result_maybenull_ PVOID* connection_cookie);
 
-VOID disconnect_notify_callback(
-	_In_opt_ PVOID connection_cookie);
+VOID disconnect_notify_callback(_In_opt_ PVOID connection_cookie);
 
 NTSTATUS user_reply_notify_callback(
 	_In_opt_ PVOID port_cookie,
@@ -26,9 +25,13 @@ NTSTATUS user_reply_notify_callback(
 
 NTSTATUS create_communication_port();
 
-NTSTATUS send_message_to_user(
-	_In_ PFLT_CALLBACK_DATA data,
-	_In_ PCUNICODE_STRING file_name);
+NTSTATUS create_message(
+	_Out_ FIM_MESSAGE** message,
+	_In_ PCUNICODE_STRING file_name,
+	_In_ OPERATION_TYPE operation_type,
+	_In_ ULONG operation_id);
+
+NTSTATUS send_message_to_user(_In_ FIM_MESSAGE* message);
 
 LONG exception_handler(
 	_In_ PEXCEPTION_POINTERS ExceptionPointer,

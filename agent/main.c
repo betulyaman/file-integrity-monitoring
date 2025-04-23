@@ -22,17 +22,20 @@ int main() {
 	GET_MESSAGE message;
 	HRESULT hresult;
 	while (TRUE) {
+		printf("FilterGetMessage start\n");
 		hresult = FilterGetMessage(
 			port,
 			&(message.header),
 			sizeof(GET_MESSAGE),
 			NULL
 		);
+		printf("FilterGetMessage ends\n");
+
 		if (hresult != S_OK) {
 			printf("FilterGetMessage FAILED hresult: %d\n", hresult);
 			continue;
 		}
-		printf("ID: %u  -  Message: %ls\n", message.kernel_message.operation_id, message.kernel_message.file_name);
+		printf("ID: %u  -  Message: %ls - Opeation: %d\n", message.kernel_message.operation_id, message.kernel_message.file_name, message.kernel_message.operation_type);
 
 
 		LONG operation_id = message.kernel_message.operation_id;

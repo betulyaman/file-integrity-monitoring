@@ -5,13 +5,25 @@
 
 typedef struct {
 	ULONG operation_id;
-	//UINT8 operation_type;
+	UINT8 operation_type;
 	WCHAR file_name[260];
 } FIM_MESSAGE;
 
 typedef struct {
 	ULONG operation_id;
+	UINT8 operation_type;
 	BOOLEAN allow;
 } USER_REPLY;
+
+typedef enum {
+	OPERATION_TYPE_INVALID = 0,
+	OPERATION_TYPE_CREATE,
+	OPERATION_TYPE_WRITE,
+	OPERATION_TYPE_MOVE,
+	OPERATION_TYPE_RENAME,
+	OPERATION_TYPE_DELETE,
+	OPERATION_TYPE_CLOSE,
+	OPERATION_TYPE_CLEANUP
+} OPERATION_TYPE;
 
 #endif // FILE_INTEGRITY_MONITORING_COMMUNICATION_INFO_H

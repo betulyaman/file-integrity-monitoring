@@ -5,11 +5,31 @@
 NTSTATUS register_filter(_In_ PDRIVER_OBJECT driver_object)
 {
 	CONST FLT_OPERATION_REGISTRATION callbacks[] = {
-		//{IRP_MJ_CREATE, 0, PreOperationCallback, NULL},
-		//{IRP_MJ_CLOSE,  0, PreOperationCallback, NULL},
-		//{IRP_MJ_WRITE,  0, PreOperationCallback, NULL},
-		//{IRP_MJ_CLEANUP,0, PreOperationCallback, NULL},
-		{IRP_MJ_SET_INFORMATION, 0, preoperation_callback_for_delete, NULL},
+		{IRP_MJ_CREATE,
+		 0,
+		 NULL,
+		 post_operation_callback},
+
+		{IRP_MJ_CLOSE,
+		 0,
+		 NULL,
+		 post_operation_callback},
+
+		{IRP_MJ_WRITE,
+		 0,
+		 NULL,
+		 post_operation_callback},
+
+		{IRP_MJ_CLEANUP,
+		 0,
+		 NULL,
+		 post_operation_callback},
+
+		{IRP_MJ_SET_INFORMATION,
+		 0,
+		 pre_operation_callback,
+		 post_operation_callback},
+
 		{IRP_MJ_OPERATION_END}
 	};
 

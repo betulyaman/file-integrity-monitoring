@@ -10,9 +10,9 @@
 #define TAG 'fltr'
 
 typedef struct {
-    PFLT_FILTER registered_filter;
-    PFLT_PORT server_port;
-    PFLT_PORT client_port;
+	PFLT_FILTER registered_filter;
+	PFLT_PORT server_port;
+	PFLT_PORT client_port;
 } FIM_CONTEXT;
 
 extern FIM_CONTEXT g_context;

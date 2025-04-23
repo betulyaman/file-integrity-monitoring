@@ -6,7 +6,7 @@ FIM_CONTEXT g_context;
 
 NTSTATUS DriverEntry(
 	_In_ PDRIVER_OBJECT driver_object,
-	_In_ PUNICODE_STRING registry_path ) 
+	_In_ PUNICODE_STRING registry_path)
 {
 	UNREFERENCED_PARAMETER(registry_path);
 
@@ -53,7 +53,7 @@ NTSTATUS filter_unload_callback(FLT_FILTER_UNLOAD_FLAGS flags)
 		g_context.registered_filter = NULL;
 	}
 
-	// clear pending queue TODO
+	pending_operation_list_clear();
 
 	return STATUS_SUCCESS;
 }
