@@ -2,8 +2,6 @@
 
 #include <ntstrsafe.h>
 
-#define MAX_FILE_NAME_LENGTH 260
-
 FLT_PREOP_CALLBACK_STATUS pre_operation_callback(
 	_Inout_ PFLT_CALLBACK_DATA data,
 	_In_ PCFLT_RELATED_OBJECTS filter_objects,
@@ -20,33 +18,19 @@ FLT_PREOP_CALLBACK_STATUS pre_operation_callback(
 		operation_type != OPERATION_TYPE_RENAME) {
 		return FLT_PREOP_SUCCESS_WITH_CALLBACK;
 	}
-	DbgPrint("FIM: get_operation_type\n");
-
-	WCHAR buffer[MAX_FILE_NAME_LENGTH];
-	UNICODE_STRING file_name = { .Length = 0, .MaximumLength = MAX_FILE_NAME_LENGTH, .Buffer = buffer };
-	NTSTATUS status = get_file_name(data, &file_name);
-	if (!NT_SUCCESS(status)) {
-		return FLT_PREOP_SUCCESS_NO_CALLBACK;
-	}
-	DbgPrint("FIM: get_file_name\n");
 
 	LONG operation_id = InterlockedIncrement(&g_operation_id);
 
-	FIM_MESSAGE* message;
-	status = create_message(&message, &file_name, operation_type, operation_id);
+	FIM_MESSAGE message;
+	NTSTATUS status = create_confirmation_message(data, operation_id, &message);
 	if (!NT_SUCCESS(status)) {
 		return status;
 	}
-	DbgPrint("FIM: create_message\n");
 
-	status = send_message_to_user(message);
+	status = send_message_to_user(&message);
 	if (!NT_SUCCESS(status)) {
-		ExFreePool(message);
 		return FLT_PREOP_SUCCESS_NO_CALLBACK;
 	}
-
-	ExFreePool(message);
-	DbgPrint("FIM: Free message\n");
 
 	status = add_operation_to_pending_list(data, operation_id);
 	if (!NT_SUCCESS(status)) {
@@ -64,11 +48,21 @@ FLT_POSTOP_CALLBACK_STATUS post_operation_callback(
 	_In_opt_ PVOID completion_context,
 	_In_ FLT_POST_OPERATION_FLAGS flags
 ) {
-	UNREFERENCED_PARAMETER(data);
 	UNREFERENCED_PARAMETER(filter_objects);
 	UNREFERENCED_PARAMETER(completion_context);
 	UNREFERENCED_PARAMETER(flags);
 	DbgPrint("FIM: post_operation_callback START\n");
+
+	FIM_MESSAGE message;
+	NTSTATUS status = create_log_message(data, &message);
+	if (!NT_SUCCESS(status)) {
+		return status;
+	}
+
+	status = send_message_to_user(&message);
+	if (!NT_SUCCESS(status)) {
+		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+	}
 
 	DbgPrint("FIM: post_operation_callback END\n");
 	return FLT_POSTOP_FINISHED_PROCESSING;

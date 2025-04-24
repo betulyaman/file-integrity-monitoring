@@ -3,16 +3,7 @@
 
 #define COMMUNICATION_PORT_NAME L"\\CommunicationPort"
 
-typedef struct {
-	ULONG operation_id;
-	UINT8 operation_type;
-	WCHAR file_name[260];
-} FIM_MESSAGE;
-
-typedef struct {
-	ULONG operation_id;
-	BOOLEAN allow;
-} USER_REPLY;
+#define MAX_FILE_NAME_LENGTH 260
 
 typedef enum {
 	OPERATION_TYPE_INVALID = 0,
@@ -24,5 +15,34 @@ typedef enum {
 	OPERATION_TYPE_CLOSE,
 	OPERATION_TYPE_CLEANUP
 } OPERATION_TYPE;
+
+typedef enum {
+	MESSAGE_TYPE_CONFIRMATION,
+	MESSAGE_TYPE_LOG
+} MESSAGE_TYPE;
+
+typedef struct {
+	ULONG operation_id;
+} CONFIRMATION_MESSAGE;
+
+typedef struct {
+	ULONG operation_id;
+	BOOLEAN allow;
+} USER_REPLY;
+
+typedef struct {
+	// LARGE_INTEGER originating_time;
+	LARGE_INTEGER completion_time;
+	ULONG_PTR process_id;
+	ULONG_PTR thread_id;
+} LOG_MESSAGE;
+
+typedef struct {
+	MESSAGE_TYPE message_type;
+	OPERATION_TYPE operation_type;
+	CONFIRMATION_MESSAGE confirmation_message;
+	LOG_MESSAGE log_message;
+	WCHAR file_name[260];
+} FIM_MESSAGE;
 
 #endif // FILE_INTEGRITY_MONITORING_COMMUNICATION_INFO_H

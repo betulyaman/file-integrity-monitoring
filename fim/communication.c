@@ -73,7 +73,7 @@ NTSTATUS create_communication_port()
 
 NTSTATUS send_message_to_user(_In_ FIM_MESSAGE* message)
 {
-	DbgPrint("FIM: pre_operation_callback START\n");
+	DbgPrint("FIM: send_message_to_user START\n");
 
 	if (g_context.client_port == NULL) {
 		DbgPrint("FIM: g_context.client_port == NULL\n");
@@ -100,37 +100,67 @@ NTSTATUS send_message_to_user(_In_ FIM_MESSAGE* message)
 		return STATUS_UNSUCCESSFUL;
 	}
 
-	DbgPrint("FIM: pre_operation_callback END\n");
+	DbgPrint("FIM: send_message_to_user END\n");
 
 	return STATUS_SUCCESS;
 }
 
-NTSTATUS create_message(_Out_ FIM_MESSAGE** message, _In_ PCUNICODE_STRING file_name, _In_ OPERATION_TYPE operation_type, _In_ ULONG operation_id) {
-	DbgPrint("FIM: create_message START\n");
+NTSTATUS create_confirmation_message(_In_ PFLT_CALLBACK_DATA data, _In_ ULONG operation_id, _Out_ FIM_MESSAGE* message) {
+	DbgPrint("FIM: create_confirmation_message START\n");
 	if (message == NULL) {
 		DbgPrint("FIM: message == NULL\n");
-		*message = NULL;
 		return STATUS_INVALID_PARAMETER;
 	}
 
-	FIM_MESSAGE* message_new = ExAllocatePoolWithTag(NonPagedPool, sizeof(FIM_MESSAGE), TAG);
-	if (message_new == NULL) {
-		DbgPrint("FIM: ExAllocatePoolWithTag: STATUS_INSUFFICIENT_RESOURCES\n");
-		return STATUS_INSUFFICIENT_RESOURCES;
-	}
-	DbgPrint("FIM: Allocate message");
-	message_new->operation_id = operation_id;
-	message_new->operation_type = operation_type;
-	NTSTATUS status = RtlStringCchCopyW(message_new->file_name, 260, file_name->Buffer);
-	if (status) {
-		DbgPrint("FIM: RtlStringCchCopyW failed. status 0x%x\n", status);
-		*message = NULL;
+	message->message_type = MESSAGE_TYPE_CONFIRMATION;
+	message->operation_type = get_operation_type(data);
+	message->confirmation_message.operation_id = operation_id;
+	RtlSecureZeroMemory(&(message->log_message), sizeof(LOG_MESSAGE));
 
+	WCHAR buffer[MAX_FILE_NAME_LENGTH];
+	UNICODE_STRING file_name = { .Length = 0, .MaximumLength = MAX_FILE_NAME_LENGTH, .Buffer = buffer };
+	NTSTATUS status = get_file_name(data, &file_name);
+	if (!NT_SUCCESS(status)) {
+		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+	}
+	status = RtlStringCchCopyW(message->file_name, 260, file_name.Buffer);
+	if (!NT_SUCCESS(status)) {
+		DbgPrint("FIM: RtlStringCchCopyW failed. status 0x%x\n", status);
 		return status;
 	}
 
-	*message = message_new;
-	DbgPrint("FIM: create_message END\n");
+	DbgPrint("FIM: create_confirmation_message END\n");
+	return STATUS_SUCCESS;
+}
+
+NTSTATUS create_log_message(_In_ PFLT_CALLBACK_DATA data, _Out_ FIM_MESSAGE* message) {
+	DbgPrint("create_log_message START\n");
+	if (message == NULL) {
+		DbgPrint("FIM: message == NULL\n");
+		return STATUS_INVALID_PARAMETER;
+	}
+
+	message->message_type = MESSAGE_TYPE_LOG;
+	message->operation_type = get_operation_type(data);
+	RtlSecureZeroMemory(&(message->confirmation_message), sizeof(CONFIRMATION_MESSAGE));
+
+	KeQuerySystemTime(&message->log_message.completion_time);
+	message->log_message.process_id = (ULONG_PTR)PsGetCurrentProcessId();
+	message->log_message.thread_id = (ULONG_PTR)PsGetCurrentThreadId();
+
+	WCHAR buffer[MAX_FILE_NAME_LENGTH];
+	UNICODE_STRING file_name = { .Length = 0, .MaximumLength = MAX_FILE_NAME_LENGTH, .Buffer = buffer };
+	NTSTATUS status = get_file_name(data, &file_name);
+	if (!NT_SUCCESS(status)) {
+		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+	}
+	status = RtlStringCchCopyW(message->file_name, 260, file_name.Buffer);
+	if (!NT_SUCCESS(status)) {
+		DbgPrint("FIM: RtlStringCchCopyW failed. status 0x%x\n", status);
+		return status;
+	}
+
+	DbgPrint("FIM: create_log_message END\n");
 	return STATUS_SUCCESS;
 }
 
@@ -146,7 +176,6 @@ NTSTATUS user_reply_notify_callback(
 	UNREFERENCED_PARAMETER(port_cookie);
 	UNREFERENCED_PARAMETER(output_buffer);
 	UNREFERENCED_PARAMETER(output_buffer_length);
-
 	*return_output_buffer_length = 0;
 
 	if ((input_buffer == NULL) ||
@@ -172,7 +201,6 @@ NTSTATUS user_reply_notify_callback(
 		return STATUS_UNSUCCESSFUL;
 	}
 
-
 	FLT_PREOP_CALLBACK_STATUS status;
 	if (reply.allow) {
 		status = FLT_PREOP_SUCCESS_WITH_CALLBACK; // call postoperation for logging
@@ -188,6 +216,7 @@ NTSTATUS user_reply_notify_callback(
 	FltCompletePendedPreOperation(replied_operation->data, status, NULL);
 	DbgPrint("FIM: FltCompletePendedPreOperation\n");
 
+	ExFreePool(replied_operation);
 	DbgPrint("FIM: user_reply_notify_callback END\n");
 
 	return STATUS_SUCCESS;

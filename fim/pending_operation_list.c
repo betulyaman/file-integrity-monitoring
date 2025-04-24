@@ -31,8 +31,8 @@ PENDING_OPERATION* pending_operation_list_remove_by_id(_In_ CONST ULONG operatio
 	DbgPrint("FIM: pending_operation_list_remove_by_id START\n");
 
 	ExAcquireFastMutex(&g_lock);
-	PLIST_ENTRY entry = &g_pending_operation_list;
-	while (entry != NULL) {
+	PLIST_ENTRY entry = g_pending_operation_list.Flink;
+	while (entry != &g_pending_operation_list) {
 		// CONTAINING_RECORD: get a pointer to a parent structure when you have a pointer to one of its fields
 		PENDING_OPERATION* pending_operation = CONTAINING_RECORD(entry, PENDING_OPERATION, list_entry);
 		if (pending_operation->operation_id == operation_id) {
