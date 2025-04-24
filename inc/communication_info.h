@@ -11,7 +11,6 @@ typedef struct {
 
 typedef struct {
 	ULONG operation_id;
-	UINT8 operation_type;
 	BOOLEAN allow;
 } USER_REPLY;
 
