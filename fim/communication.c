@@ -14,8 +14,9 @@ NTSTATUS connect_notify_callback(
 	UNREFERENCED_PARAMETER(connection_context);
 	UNREFERENCED_PARAMETER(size_of_context);
 	connection_cookie = NULL;
+
+	FLT_ASSERT(g_context.client_port == NULL);
 	g_context.client_port = client_port;
-	DbgPrint("FIM: connect_notify_callback\n");
 	return STATUS_SUCCESS;
 }
 
@@ -61,6 +62,8 @@ NTSTATUS create_communication_port()
 		disconnect_notify_callback,
 		user_reply_notify_callback, // triggered by FilterSendMessage 
 		1);
+
+	FltFreeSecurityDescriptor(security_descriptor);
 
 	if (!NT_SUCCESS(status)) {
 		FltUnregisterFilter(g_context.registered_filter);
@@ -134,7 +137,7 @@ NTSTATUS create_confirmation_message(_In_ PFLT_CALLBACK_DATA data, _In_ ULONG op
 }
 
 NTSTATUS create_log_message(_In_ PFLT_CALLBACK_DATA data, _Out_ FIM_MESSAGE* message) {
-	DbgPrint("create_log_message START\n");
+	DbgPrint("FIM: create_log_message START\n");
 	if (message == NULL) {
 		DbgPrint("FIM: message == NULL\n");
 		return STATUS_INVALID_PARAMETER;
@@ -164,6 +167,7 @@ NTSTATUS create_log_message(_In_ PFLT_CALLBACK_DATA data, _Out_ FIM_MESSAGE* mes
 	return STATUS_SUCCESS;
 }
 
+// called whenever a user mode application wishes to communicate with the minifilter.
 NTSTATUS user_reply_notify_callback(
 	_In_opt_ PVOID port_cookie,
 	_In_reads_bytes_opt_(InputBufferLength) PVOID input_buffer,

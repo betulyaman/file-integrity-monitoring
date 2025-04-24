@@ -2,12 +2,18 @@
 
 #include <ntstrsafe.h>
 
+
 FLT_PREOP_CALLBACK_STATUS pre_operation_callback(
 	_Inout_ PFLT_CALLBACK_DATA data,
 	_In_ PCFLT_RELATED_OBJECTS filter_objects,
 	_Flt_CompletionContext_Outptr_ PVOID* completion_callback
 ) {
 	DbgPrint("FIM: pre_operation_callback START\n");
+
+	if (!is_agent_connected()) {
+		DbgPrint("FIM: Agent not connected\n");
+		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+	}
 
 	UNREFERENCED_PARAMETER(filter_objects);
 	UNREFERENCED_PARAMETER(completion_callback);

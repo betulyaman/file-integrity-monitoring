@@ -63,3 +63,7 @@ NTSTATUS filter_unload_callback(FLT_FILTER_UNLOAD_FLAGS flags)
 
 	return STATUS_SUCCESS;
 }
+
+BOOLEAN is_agent_connected() {
+	return (g_context.client_port != NULL);
+}

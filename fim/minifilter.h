@@ -21,4 +21,7 @@ NTSTATUS register_filter(_In_ PDRIVER_OBJECT driver_object);
 
 NTSTATUS filter_unload_callback(FLT_FILTER_UNLOAD_FLAGS flags);
 
+
+BOOLEAN is_agent_connected();
+
 #endif // FILE_INTEGRITY_MONITORING_FILTER_H
