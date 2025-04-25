@@ -7,28 +7,28 @@ LIST_ENTRY g_pending_operation_list;
 LONG g_operation_id;
 
 VOID pending_operation_list_initialize() {
-	DbgPrint("FIM: pending_operation_list_initialize START\n");
+	LOG_MSG("pending_operation_list_initialize START");
 
 	InitializeListHead(&g_pending_operation_list);
 	ExInitializeFastMutex(&g_lock);
-	DbgPrint("FIM: pending_operation_list_initialize END\n");
+	LOG_MSG("pending_operation_list_initialize END");
 
 }
 
 VOID pending_operation_list_append(_In_ PENDING_OPERATION* operation)
 {
-	DbgPrint("FIM: pending_operation_list_append START\n");
+	LOG_MSG("pending_operation_list_append START");
 
 	ExAcquireFastMutex(&g_lock);
 	InsertTailList(&g_pending_operation_list, &(operation->list_entry));
 	ExReleaseFastMutex(&g_lock);
-	DbgPrint("FIM: pending_operation_list_append END\n");
+	LOG_MSG("pending_operation_list_append END");
 
 }
 
 PENDING_OPERATION* pending_operation_list_remove_by_id(_In_ CONST ULONG operation_id)
 {
-	DbgPrint("FIM: pending_operation_list_remove_by_id START\n");
+	LOG_MSG("pending_operation_list_remove_by_id START");
 
 	ExAcquireFastMutex(&g_lock);
 	PLIST_ENTRY entry = g_pending_operation_list.Flink;
@@ -45,19 +45,19 @@ PENDING_OPERATION* pending_operation_list_remove_by_id(_In_ CONST ULONG operatio
 	}
 	ExReleaseFastMutex(&g_lock);
 
-	DbgPrint("FIM: pending_operation_list_remove_by_id END\n");
+	LOG_MSG("pending_operation_list_remove_by_id END");
 
 	return NULL;
 }
 
 NTSTATUS add_operation_to_pending_list(_In_ PFLT_CALLBACK_DATA data, _In_ ULONG operation_id)
 {
-	DbgPrint("FIM: add_operation_to_pending_list START\n");
+	LOG_MSG("add_operation_to_pending_list START");
 
 	// Set up pending op context, store calllback data and wait event
 	PENDING_OPERATION* pending = ExAllocatePoolWithTag(NonPagedPool, sizeof(PENDING_OPERATION), TAG);
 	if (!pending) {
-		DbgPrint("FIM: ExAllocatePoolWithTag Pending: STATUS_INSUFFICIENT_RESOURCES\n");
+		LOG_MSG("ExAllocatePoolWithTag Pending: STATUS_INSUFFICIENT_RESOURCES");
 		return STATUS_INSUFFICIENT_RESOURCES;
 	}
 
@@ -66,14 +66,14 @@ NTSTATUS add_operation_to_pending_list(_In_ PFLT_CALLBACK_DATA data, _In_ ULONG 
 	pending->data = data;
 	pending_operation_list_append(pending);
 
-	DbgPrint("FIM: add_operation_to_pending_list END\n");
+	LOG_MSG("add_operation_to_pending_list END");
 
 	return STATUS_SUCCESS;
 
 }
 
 VOID pending_operation_list_clear() {
-	DbgPrint("FIM: pending_operation_list_clear START\n");
+	LOG_MSG("pending_operation_list_clear START");
 
 	ExAcquireFastMutex(&g_lock);
 	PLIST_ENTRY head = RemoveHeadList(&g_pending_operation_list);
@@ -82,7 +82,7 @@ VOID pending_operation_list_clear() {
 		head = RemoveHeadList(&g_pending_operation_list);
 	}
 	ExReleaseFastMutex(&g_lock);
-	DbgPrint("FIM: pending_operation_list_clear END\n");
+	LOG_MSG("pending_operation_list_clear END");
 
 }
 

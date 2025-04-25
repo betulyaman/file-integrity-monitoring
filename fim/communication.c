@@ -30,17 +30,17 @@ VOID disconnect_notify_callback(
 		FltCloseClientPort(g_context.registered_filter, &g_context.client_port);
 		g_context.client_port = NULL;
 	}
-	DbgPrint("FIM: disconnect_notify_callback\n");
+	LOG_MSG("disconnect_notify_callback");
 }
 
 NTSTATUS create_communication_port()
 {
-	DbgPrint("FIM: create_communication_port START\n");
+	LOG_MSG("create_communication_port START");
 
 	PSECURITY_DESCRIPTOR security_descriptor = NULL;
 	NTSTATUS status = FltBuildDefaultSecurityDescriptor(&security_descriptor, FLT_PORT_ALL_ACCESS);
 	if (NT_ERROR(status)) {
-		DbgPrint("FIM: FltBuildDefaultSecurityDescriptor failed. status 0x%x\n", status);
+		LOG_MSG("FltBuildDefaultSecurityDescriptor failed. status 0x%x\n", status);
 		return status;
 	}
 
@@ -69,22 +69,22 @@ NTSTATUS create_communication_port()
 		FltUnregisterFilter(g_context.registered_filter);
 	}
 
-	DbgPrint("FIM: create_communication_port END\n");
+	LOG_MSG("create_communication_port END");
 
 	return status;
 }
 
 NTSTATUS send_message_to_user(_In_ FIM_MESSAGE* message)
 {
-	DbgPrint("FIM: send_message_to_user START\n");
+	LOG_MSG("send_message_to_user START");
 
 	if (g_context.client_port == NULL) {
-		DbgPrint("FIM: g_context.client_port == NULL\n");
+		LOG_MSG("g_context.client_port == NULL");
 		return STATUS_UNSUCCESSFUL;
 	}
 
 	if (message == NULL) {
-		DbgPrint("FIM: message == NULL\n");
+		LOG_MSG("message == NULL");
 		return STATUS_UNSUCCESSFUL;
 	}
 
@@ -97,21 +97,21 @@ NTSTATUS send_message_to_user(_In_ FIM_MESSAGE* message)
 		NULL,
 		NULL
 	);
-	DbgPrint("FIM: FltSendMessage\n");
+	LOG_MSG("FltSendMessage");
 
 	if (!NT_SUCCESS(status)) {
 		return STATUS_UNSUCCESSFUL;
 	}
 
-	DbgPrint("FIM: send_message_to_user END\n");
+	LOG_MSG("send_message_to_user END");
 
 	return STATUS_SUCCESS;
 }
 
 NTSTATUS create_confirmation_message(_In_ PFLT_CALLBACK_DATA data, _In_ ULONG operation_id, _Out_ FIM_MESSAGE* message) {
-	DbgPrint("FIM: create_confirmation_message START\n");
+	LOG_MSG("create_confirmation_message START");
 	if (message == NULL) {
-		DbgPrint("FIM: message == NULL\n");
+		LOG_MSG("message == NULL");
 		return STATUS_INVALID_PARAMETER;
 	}
 
@@ -128,18 +128,18 @@ NTSTATUS create_confirmation_message(_In_ PFLT_CALLBACK_DATA data, _In_ ULONG op
 	}
 	status = RtlStringCchCopyW(message->file_name, 260, file_name.Buffer);
 	if (!NT_SUCCESS(status)) {
-		DbgPrint("FIM: RtlStringCchCopyW failed. status 0x%x\n", status);
+		LOG_MSG("RtlStringCchCopyW failed. status 0x%x\n", status);
 		return status;
 	}
 
-	DbgPrint("FIM: create_confirmation_message END\n");
+	LOG_MSG("create_confirmation_message END");
 	return STATUS_SUCCESS;
 }
 
 NTSTATUS create_log_message(_In_ PFLT_CALLBACK_DATA data, _Out_ FIM_MESSAGE* message) {
-	DbgPrint("FIM: create_log_message START\n");
+	LOG_MSG("create_log_message START");
 	if (message == NULL) {
-		DbgPrint("FIM: message == NULL\n");
+		LOG_MSG("message == NULL");
 		return STATUS_INVALID_PARAMETER;
 	}
 
@@ -159,11 +159,11 @@ NTSTATUS create_log_message(_In_ PFLT_CALLBACK_DATA data, _Out_ FIM_MESSAGE* mes
 	}
 	status = RtlStringCchCopyW(message->file_name, 260, file_name.Buffer);
 	if (!NT_SUCCESS(status)) {
-		DbgPrint("FIM: RtlStringCchCopyW failed. status 0x%x\n", status);
+		LOG_MSG("RtlStringCchCopyW failed. status 0x%x\n", status);
 		return status;
 	}
 
-	DbgPrint("FIM: create_log_message END\n");
+	LOG_MSG("create_log_message END");
 	return STATUS_SUCCESS;
 }
 
@@ -176,7 +176,7 @@ NTSTATUS user_reply_notify_callback(
 	_In_ ULONG output_buffer_length,
 	_Out_ PULONG return_output_buffer_length
 ) {
-	DbgPrint("FIM: user_reply_notify_callback START\n");
+	LOG_MSG("user_reply_notify_callback START");
 	UNREFERENCED_PARAMETER(port_cookie);
 	UNREFERENCED_PARAMETER(output_buffer);
 	UNREFERENCED_PARAMETER(output_buffer_length);
@@ -192,7 +192,7 @@ NTSTATUS user_reply_notify_callback(
 	try {
 		reply.operation_id = ((USER_REPLY*)input_buffer)->operation_id;
 		reply.allow = ((USER_REPLY*)input_buffer)->allow;
-		DbgPrint("FIM: try\n");
+		LOG_MSG("try");
 
 	} except(exception_handler(GetExceptionInformation(), TRUE)) {
 
@@ -208,20 +208,20 @@ NTSTATUS user_reply_notify_callback(
 	FLT_PREOP_CALLBACK_STATUS status;
 	if (reply.allow) {
 		status = FLT_PREOP_SUCCESS_WITH_CALLBACK; // call postoperation for logging
-		DbgPrint("FIM: ALLOWED\n");
+		LOG_MSG("ALLOWED");
 	}
 	else {
 		// TODO: add log
 		replied_operation->data->IoStatus.Status = STATUS_ACCESS_DENIED;
 		status = FLT_PREOP_COMPLETE;
-		DbgPrint("FIM: DENIED\n");
+		LOG_MSG("DENIED");
 	}
 
 	FltCompletePendedPreOperation(replied_operation->data, status, NULL);
-	DbgPrint("FIM: FltCompletePendedPreOperation\n");
+	LOG_MSG("FltCompletePendedPreOperation");
 
 	ExFreePool(replied_operation);
-	DbgPrint("FIM: user_reply_notify_callback END\n");
+	LOG_MSG("user_reply_notify_callback END");
 
 	return STATUS_SUCCESS;
 }

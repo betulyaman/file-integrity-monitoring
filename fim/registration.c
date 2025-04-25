@@ -4,7 +4,7 @@
 
 NTSTATUS register_filter(_In_ PDRIVER_OBJECT driver_object)
 {
-	DbgPrint("FIM: register_filter START\n");
+	LOG_MSG("register_filter START");
 
 	CONST FLT_OPERATION_REGISTRATION callbacks[] = {
 		{IRP_MJ_CREATE,
@@ -43,7 +43,7 @@ NTSTATUS register_filter(_In_ PDRIVER_OBJECT driver_object)
 		.OperationRegistration = callbacks,
 		.FilterUnloadCallback = filter_unload_callback,
 		.InstanceSetupCallback = NULL,
-		.InstanceQueryTeardownCallback = NULL,
+		.InstanceQueryTeardownCallback = filter_tear_down_callback,
 		.InstanceTeardownStartCallback = NULL,
 		.InstanceTeardownCompleteCallback = NULL,
 		.GenerateFileNameCallback = NULL,
@@ -53,7 +53,6 @@ NTSTATUS register_filter(_In_ PDRIVER_OBJECT driver_object)
 		.NormalizeNameComponentExCallback = NULL,
 		.SectionNotificationCallback = NULL,
 	};
-	DbgPrint("FIM: register_filter END\n");
 
 	return FltRegisterFilter(driver_object, &registration_data, &g_context.registered_filter);
 }

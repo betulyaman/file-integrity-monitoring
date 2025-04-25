@@ -8,10 +8,10 @@ FLT_PREOP_CALLBACK_STATUS pre_operation_callback(
 	_In_ PCFLT_RELATED_OBJECTS filter_objects,
 	_Flt_CompletionContext_Outptr_ PVOID* completion_callback
 ) {
-	DbgPrint("FIM: pre_operation_callback START\n");
+	LOG_MSG("pre_operation_callback START");
 
 	if (!is_agent_connected()) {
-		DbgPrint("FIM: Agent not connected\n");
+		LOG_MSG("Agent not connected");
 		return FLT_PREOP_SUCCESS_NO_CALLBACK;
 	}
 
@@ -43,7 +43,7 @@ FLT_PREOP_CALLBACK_STATUS pre_operation_callback(
 		return FLT_PREOP_SUCCESS_NO_CALLBACK;
 	}
 
-	DbgPrint("FIM: pre_operation_callback END\n");
+	LOG_MSG("pre_operation_callback END");
 
 	return FLT_PREOP_PENDING;
 }
@@ -57,7 +57,7 @@ FLT_POSTOP_CALLBACK_STATUS post_operation_callback(
 	UNREFERENCED_PARAMETER(filter_objects);
 	UNREFERENCED_PARAMETER(completion_context);
 	UNREFERENCED_PARAMETER(flags);
-	DbgPrint("FIM: post_operation_callback START\n");
+	LOG_MSG("post_operation_callback START");
 
 	FIM_MESSAGE message;
 	NTSTATUS status = create_log_message(data, &message);
@@ -70,37 +70,37 @@ FLT_POSTOP_CALLBACK_STATUS post_operation_callback(
 		return FLT_PREOP_SUCCESS_NO_CALLBACK;
 	}
 
-	DbgPrint("FIM: post_operation_callback END\n");
+	LOG_MSG("post_operation_callback END");
 	return FLT_POSTOP_FINISHED_PROCESSING;
 }
 
 
 OPERATION_TYPE get_operation_type(_Inout_ PFLT_CALLBACK_DATA data) {
-	DbgPrint("FIM: get_operation_type START\n");
+	LOG_MSG("get_operation_type START");
 
 	OPERATION_TYPE operation_type = OPERATION_TYPE_INVALID;
 	switch (data->Iopb->MajorFunction) {
 	case IRP_MJ_CREATE:
 	{
-		DbgPrint("FIM: OPERATION_TYPE_CREATE\n");
+		LOG_MSG("OPERATION_TYPE_CREATE");
 		operation_type = OPERATION_TYPE_CREATE;
 		break;
 	}
 	case IRP_MJ_WRITE:
 	{
-		DbgPrint("FIM: OPERATION_TYPE_WRITE\n");
+		LOG_MSG("OPERATION_TYPE_WRITE");
 		operation_type = OPERATION_TYPE_WRITE;
 		break;
 	}
 	case IRP_MJ_CLOSE:
 	{
-		DbgPrint("FIM: OPERATION_TYPE_CLOSE\n");
+		LOG_MSG("OPERATION_TYPE_CLOSE");
 		operation_type = OPERATION_TYPE_CLOSE;
 		break;
 	}
 	case IRP_MJ_SET_INFORMATION:
 	{
-		DbgPrint("FIM: IRP_MJ_SET_INFORMATION\n");
+		LOG_MSG("IRP_MJ_SET_INFORMATION");
 
 		FILE_INFORMATION_CLASS file_information_class = data->Iopb->Parameters.SetFileInformation.FileInformationClass;
 		if (file_information_class == FileDispositionInformation ||
@@ -109,7 +109,7 @@ OPERATION_TYPE get_operation_type(_Inout_ PFLT_CALLBACK_DATA data) {
 			PFILE_DISPOSITION_INFORMATION file_information = (PFILE_DISPOSITION_INFORMATION)data->Iopb->Parameters.SetFileInformation.InfoBuffer;
 			if (file_information->DeleteFile) {
 				operation_type = OPERATION_TYPE_DELETE;
-				DbgPrint("FIM: OPERATION_TYPE_DELETE\n");
+				LOG_MSG("OPERATION_TYPE_DELETE");
 
 			}
 		}
@@ -118,12 +118,12 @@ OPERATION_TYPE get_operation_type(_Inout_ PFLT_CALLBACK_DATA data) {
 			PFILE_RENAME_INFORMATION file_information = (PFILE_RENAME_INFORMATION)data->Iopb->Parameters.SetFileInformation.InfoBuffer;
 			if (file_information->RootDirectory == NULL) {
 				operation_type = OPERATION_TYPE_RENAME;
-				DbgPrint("FIM: OPERATION_TYPE_RENAME\n");
+				LOG_MSG("OPERATION_TYPE_RENAME");
 
 			}
 			else {
 				operation_type = OPERATION_TYPE_MOVE;
-				DbgPrint("FIM: OPERATION_TYPE_MOVE\n");
+				LOG_MSG("OPERATION_TYPE_MOVE");
 
 			}
 		}
@@ -131,24 +131,24 @@ OPERATION_TYPE get_operation_type(_Inout_ PFLT_CALLBACK_DATA data) {
 	}
 	case IRP_MJ_CLEANUP:
 	{
-		DbgPrint("FIM: OPERATION_TYPE_CLEANUP\n");
+		LOG_MSG("OPERATION_TYPE_CLEANUP");
 
 		operation_type = OPERATION_TYPE_CLEANUP;
 		break;
 	}
 	default:
 	{
-		DbgPrint("FIM: OPERATION_TYPE_INVALID\n");
+		LOG_MSG("OPERATION_TYPE_INVALID");
 
 		operation_type = OPERATION_TYPE_INVALID;
 	}
 	}
-	DbgPrint("FIM: get_operation_type END\n");
+	LOG_MSG("get_operation_type END");
 	return operation_type;
 }
 
 NTSTATUS get_file_name(_Inout_ PFLT_CALLBACK_DATA data, _Out_ PUNICODE_STRING file_name) {
-	DbgPrint("FIM: get_file_name START\n");
+	LOG_MSG("get_file_name START");
 
 	if (file_name == NULL) {
 		return STATUS_INVALID_PARAMETER;
@@ -165,7 +165,7 @@ NTSTATUS get_file_name(_Inout_ PFLT_CALLBACK_DATA data, _Out_ PUNICODE_STRING fi
 		FltReleaseFileNameInformation(name_info);
 	}
 
-	DbgPrint("FIM: get_file_name END\n");
+	LOG_MSG("get_file_name END");
 
 	return status;
 }

@@ -4,6 +4,7 @@
 
 #include "communication_info.h"
 
+
 #define TIME_BUFFER_LENGTH 20
 #define TIME_ERROR "time error"
 
@@ -13,19 +14,28 @@ typedef struct {
 } GET_MESSAGE;
 
 int main() {
-	printf("Agent\n");
+	printf("Agent");
 
 	HANDLE port = INVALID_HANDLE_VALUE;
-	HRESULT result = FilterConnectCommunicationPort(COMMUNICATION_PORT_NAME, 0, NULL, 0, NULL, &port);
-	if (FAILED(result)) {
-		printf("Connect error: 0x%08x\n", result);
-		return 1;
+	HRESULT result;
+	boolean is_connected = 0;
+	while (!is_connected) {
+		
+		result = FilterConnectCommunicationPort(COMMUNICATION_PORT_NAME, 0, NULL, 0, NULL, &port);
+		if (FAILED(result)) {
+			printf("Connect error: 0x%08x\n", result);
+			continue;
+		}
+		else {
+			is_connected = 1;
+		}
+		Sleep(1000);
 	}
 	
 	GET_MESSAGE message;
 	HRESULT hresult;
 	while (TRUE) {
-		printf("START\n");
+		printf("START");
 		hresult = FilterGetMessage(
 			port,
 			&(message.header),
@@ -85,7 +95,7 @@ int main() {
 		}
 
 
-		printf("END\n\n");
+		printf("END\n");
 	}
 
 }

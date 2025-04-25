@@ -90,6 +90,7 @@
     </Link>
     <ClCompile>
       <AdditionalIncludeDirectories>D:\workspace\file_integrity_monitoring\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
