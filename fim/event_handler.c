@@ -1,7 +1,16 @@
-#include "minifilter.h"
+#include "event_handler.h"
+
+#include "communication.h"
+#include "file_operation_list.h"
+#include "global_context.h"
+#include "log.h"
 
 #include <ntstrsafe.h>
 
+BOOLEAN is_agent_connected();
+
+LIST_ENTRY g_file_operation_list;
+FAST_MUTEX g_file_operation_list_lock;
 
 FLT_PREOP_CALLBACK_STATUS pre_operation_callback(
 	_Inout_ PFLT_CALLBACK_DATA data,
@@ -25,23 +34,7 @@ FLT_PREOP_CALLBACK_STATUS pre_operation_callback(
 		return FLT_PREOP_SUCCESS_WITH_CALLBACK;
 	}
 
-	LONG operation_id = InterlockedIncrement(&g_operation_id);
-
-	FIM_MESSAGE message;
-	NTSTATUS status = create_confirmation_message(data, operation_id, &message);
-	if (!NT_SUCCESS(status)) {
-		return status;
-	}
-
-	status = send_message_to_user(&message);
-	if (!NT_SUCCESS(status)) {
-		return FLT_PREOP_SUCCESS_NO_CALLBACK;
-	}
-
-	status = add_operation_to_pending_list(data, operation_id);
-	if (!NT_SUCCESS(status)) {
-		return FLT_PREOP_SUCCESS_NO_CALLBACK;
-	}
+	add_operation_to_file_list(data);
 
 	LOG_MSG("pre_operation_callback END");
 
@@ -79,69 +72,57 @@ OPERATION_TYPE get_operation_type(_Inout_ PFLT_CALLBACK_DATA data) {
 	LOG_MSG("get_operation_type START");
 
 	OPERATION_TYPE operation_type = OPERATION_TYPE_INVALID;
+
 	switch (data->Iopb->MajorFunction) {
-	case IRP_MJ_CREATE:
-	{
-		LOG_MSG("OPERATION_TYPE_CREATE");
-		operation_type = OPERATION_TYPE_CREATE;
-		break;
-	}
-	case IRP_MJ_WRITE:
-	{
-		LOG_MSG("OPERATION_TYPE_WRITE");
-		operation_type = OPERATION_TYPE_WRITE;
-		break;
-	}
-	case IRP_MJ_CLOSE:
-	{
-		LOG_MSG("OPERATION_TYPE_CLOSE");
-		operation_type = OPERATION_TYPE_CLOSE;
-		break;
-	}
-	case IRP_MJ_SET_INFORMATION:
-	{
-		LOG_MSG("IRP_MJ_SET_INFORMATION");
-
-		FILE_INFORMATION_CLASS file_information_class = data->Iopb->Parameters.SetFileInformation.FileInformationClass;
-		if (file_information_class == FileDispositionInformation ||
-			file_information_class == FileDispositionInformationEx) {
-
-			PFILE_DISPOSITION_INFORMATION file_information = (PFILE_DISPOSITION_INFORMATION)data->Iopb->Parameters.SetFileInformation.InfoBuffer;
-			if (file_information->DeleteFile) {
-				operation_type = OPERATION_TYPE_DELETE;
-				LOG_MSG("OPERATION_TYPE_DELETE");
-
-			}
+		case IRP_MJ_CREATE:
+		{
+			LOG_MSG("OPERATION_TYPE_CREATE");
+			operation_type = OPERATION_TYPE_CREATE;
+			break;
 		}
-		else if (file_information_class == FileRenameInformation ||
-			file_information_class == FileRenameInformationEx) {
-			PFILE_RENAME_INFORMATION file_information = (PFILE_RENAME_INFORMATION)data->Iopb->Parameters.SetFileInformation.InfoBuffer;
-			if (file_information->RootDirectory == NULL) {
-				operation_type = OPERATION_TYPE_RENAME;
-				LOG_MSG("OPERATION_TYPE_RENAME");
-
-			}
-			else {
-				operation_type = OPERATION_TYPE_MOVE;
-				LOG_MSG("OPERATION_TYPE_MOVE");
-
-			}
+		case IRP_MJ_WRITE:
+		{
+			LOG_MSG("OPERATION_TYPE_WRITE");
+			operation_type = OPERATION_TYPE_WRITE;
+			break;
 		}
-		break;
-	}
-	case IRP_MJ_CLEANUP:
-	{
-		LOG_MSG("OPERATION_TYPE_CLEANUP");
+		case IRP_MJ_SET_INFORMATION:
+		{
+			LOG_MSG("IRP_MJ_SET_INFORMATION");
 
-		operation_type = OPERATION_TYPE_CLEANUP;
-		break;
-	}
-	default:
-	{
-		LOG_MSG("OPERATION_TYPE_INVALID");
+			FILE_INFORMATION_CLASS file_information_class = data->Iopb->Parameters.SetFileInformation.FileInformationClass;
+			if (file_information_class == FileDispositionInformation ||
+				file_information_class == FileDispositionInformationEx) {
 
-		operation_type = OPERATION_TYPE_INVALID;
-	}
+				PFILE_DISPOSITION_INFORMATION file_information = (PFILE_DISPOSITION_INFORMATION)data->Iopb->Parameters.SetFileInformation.InfoBuffer;
+				if (file_information->DeleteFile) {
+					operation_type = OPERATION_TYPE_DELETE;
+					LOG_MSG("OPERATION_TYPE_DELETE");
+
+				}
+			}
+			else if (file_information_class == FileRenameInformation ||
+				file_information_class == FileRenameInformationEx) {
+				PFILE_RENAME_INFORMATION file_information = (PFILE_RENAME_INFORMATION)data->Iopb->Parameters.SetFileInformation.InfoBuffer;
+				if (file_information->RootDirectory == NULL) {
+					operation_type = OPERATION_TYPE_RENAME;
+					LOG_MSG("OPERATION_TYPE_RENAME");
+
+				}
+				else {
+					operation_type = OPERATION_TYPE_MOVE;
+					LOG_MSG("OPERATION_TYPE_MOVE");
+
+				}
+			}
+			break;
+		}
+		default:
+		{
+			LOG_MSG("OPERATION_TYPE_INVALID");
+
+			operation_type = OPERATION_TYPE_INVALID;
+		}
 	}
 	LOG_MSG("get_operation_type END");
 	return operation_type;
@@ -168,4 +149,8 @@ NTSTATUS get_file_name(_Inout_ PFLT_CALLBACK_DATA data, _Out_ PUNICODE_STRING fi
 	LOG_MSG("get_file_name END");
 
 	return status;
+}
+
+BOOLEAN is_agent_connected() {
+	return (g_context.client_port != NULL);
 }

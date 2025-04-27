@@ -3,13 +3,15 @@
 
 #include <fltKernel.h>
 
+#define PENDING_OPERATION_TAG 'popt'
+
 typedef struct {
 	LIST_ENTRY list_entry;
 	ULONG operation_id;
 	PFLT_CALLBACK_DATA data;
 } PENDING_OPERATION;
 
-extern FAST_MUTEX g_lock;
+extern FAST_MUTEX g_pending_operation_list_lock;
 extern LIST_ENTRY g_pending_operation_list;
 extern LONG g_operation_id;
 

@@ -1,6 +1,8 @@
 #ifndef FILE_INTEGRITY_MONITORING_EVENT_LISTENER_H
 #define FILE_INTEGRITY_MONITORING_EVENT_LISTENER_H
 
+#include "kernel_communication_info.h"
+
 #include <fltKernel.h>
 
 FLT_PREOP_CALLBACK_STATUS pre_operation_callback(

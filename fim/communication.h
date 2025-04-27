@@ -1,9 +1,9 @@
 #ifndef FILE_INTEGRITY_MONITORING_COMMUNICATION_H
 #define FILE_INTEGRITY_MONITORING_COMMUNICATION_H
 
-#include <fltKernel.h>
+#include "kernel_communication_info.h"
 
-#include "communication_info.h"
+#include <fltKernel.h>
 
 NTSTATUS connect_notify_callback(
 	_In_ PFLT_PORT client_port,
@@ -26,9 +26,10 @@ NTSTATUS user_reply_notify_callback(
 NTSTATUS create_communication_port();
 
 NTSTATUS create_confirmation_message(
-	_In_ PFLT_CALLBACK_DATA data, 
-	_In_ ULONG operation_id, 
+	_In_ PFLT_CALLBACK_DATA data,
+	_In_ ULONG operation_id,
 	_Out_ FIM_MESSAGE* message);
+
 
 NTSTATUS create_log_message(
 	_In_ PFLT_CALLBACK_DATA data, 

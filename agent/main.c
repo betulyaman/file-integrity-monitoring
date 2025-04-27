@@ -4,7 +4,6 @@
 
 #include "communication_info.h"
 
-
 #define TIME_BUFFER_LENGTH 20
 #define TIME_ERROR "time error"
 
@@ -12,6 +11,13 @@ typedef struct {
 	FILTER_MESSAGE_HEADER header;
 	FIM_MESSAGE body;
 } GET_MESSAGE;
+
+ULONG
+FormatSystemTime(
+	_In_ SYSTEMTIME* SystemTime,
+	_Out_writes_bytes_(BufferLength) CHAR* Buffer,
+	_In_ ULONG BufferLength
+);
 
 int main() {
 	printf("Agent");
@@ -59,7 +65,7 @@ int main() {
 			USER_REPLY reply = { .operation_id = operation_id, .allow = allow };
 			
 			DWORD bytes_returned;
-			hresult = FilterSendMessage(port, &reply, sizeof(USER_REPLY), NULL, NULL, &bytes_returned);
+			hresult = FilterSendMessage(port, &reply, sizeof(USER_REPLY), NULL, 0, &bytes_returned);
 			
 			printf("ID    : %u \nAllow : %u\n\r", message.body.confirmation_message.operation_id, allow);
 			if (hresult != S_OK) {

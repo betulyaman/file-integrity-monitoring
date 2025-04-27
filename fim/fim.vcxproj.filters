@@ -24,9 +24,6 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="registration.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="event_handler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,10 +33,19 @@
     <ClCompile Include="minifilter.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="listener.c">
+    <ClCompile Include="sender.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pending_operation_list.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="file_operation_list.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="global_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,10 +56,25 @@
     <ClInclude Include="event_handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="minifilter.h">
+    <ClInclude Include="pending_operation_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pending_operation_list.h">
+    <ClInclude Include="thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="global_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_operation_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kernel_communication_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

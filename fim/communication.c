@@ -1,5 +1,8 @@
 #include "communication.h"
-#include "minifilter.h"
+#include "event_handler.h"
+#include "global_context.h"
+#include "log.h"
+#include "pending_operation_list.h"
 
 #include <ntstrsafe.h>
 
@@ -116,7 +119,7 @@ NTSTATUS create_confirmation_message(_In_ PFLT_CALLBACK_DATA data, _In_ ULONG op
 	}
 
 	message->message_type = MESSAGE_TYPE_CONFIRMATION;
-	message->operation_type = get_operation_type(data);
+	message->operation_type = get_operation_type(data);;
 	message->confirmation_message.operation_id = operation_id;
 	RtlSecureZeroMemory(&(message->log_message), sizeof(LOG_MESSAGE));
 
@@ -148,8 +151,8 @@ NTSTATUS create_log_message(_In_ PFLT_CALLBACK_DATA data, _Out_ FIM_MESSAGE* mes
 	RtlSecureZeroMemory(&(message->confirmation_message), sizeof(CONFIRMATION_MESSAGE));
 
 	KeQuerySystemTime(&message->log_message.completion_time);
-	message->log_message.process_id = (ULONG_PTR)PsGetCurrentProcessId();
-	message->log_message.thread_id = (ULONG_PTR)PsGetCurrentThreadId();
+	message->log_message.process_id = (ULONG_PTR)PsGetProcessId(IoThreadToProcess(data->Thread));
+	message->log_message.thread_id = (ULONG_PTR)PsGetThreadId(data->Thread);
 
 	WCHAR buffer[MAX_FILE_NAME_LENGTH];
 	UNICODE_STRING file_name = { .Length = 0, .MaximumLength = MAX_FILE_NAME_LENGTH, .Buffer = buffer };
@@ -220,7 +223,7 @@ NTSTATUS user_reply_notify_callback(
 	FltCompletePendedPreOperation(replied_operation->data, status, NULL);
 	LOG_MSG("FltCompletePendedPreOperation");
 
-	ExFreePool(replied_operation);
+	ExFreePoolWithTag(replied_operation, PENDING_OPERATION_TAG);
 	LOG_MSG("user_reply_notify_callback END");
 
 	return STATUS_SUCCESS;
