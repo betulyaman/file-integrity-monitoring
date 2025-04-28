@@ -77,9 +77,13 @@ VOID pending_operation_list_clear() {
 	ExAcquireFastMutex(&g_pending_operation_list_lock);
 	PLIST_ENTRY head = RemoveHeadList(&g_pending_operation_list);
 	while (head != &g_pending_operation_list) {
-		ExFreePool(head);
+		ExFreePoolWithTag(head, PENDING_OPERATION_TAG);
 		head = RemoveHeadList(&g_pending_operation_list);
 	}
+	
+	head->Flink = NULL;
+	head->Blink = NULL;
+
 	ExReleaseFastMutex(&g_pending_operation_list_lock);
 	LOG_MSG("pending_operation_list_clear END");
 

@@ -2,7 +2,7 @@
 
 #include <fltKernel.h>
 
-NTSTATUS thread_create(PVOID thread_object, PKSTART_ROUTINE thread_routine) {
+NTSTATUS thread_create(PETHREAD thread_object, PKSTART_ROUTINE thread_routine) {
 	OBJECT_ATTRIBUTES object_attributes;
 	InitializeObjectAttributes(&object_attributes,
 		NULL,
@@ -25,10 +25,10 @@ NTSTATUS thread_create(PVOID thread_object, PKSTART_ROUTINE thread_routine) {
 
 	status = ObReferenceObjectByHandle(
 		thread_handle,
-		0,
+		THREAD_ALL_ACCESS,
 		NULL,
 		KernelMode,
-		thread_object,
+		(PVOID*)&thread_object,
 		NULL
 	);
 

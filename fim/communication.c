@@ -214,7 +214,7 @@ NTSTATUS user_reply_notify_callback(
 		LOG_MSG("ALLOWED");
 	}
 	else {
-		// TODO: add log
+		// TODO: send an error message to user (outputbuffer)
 		replied_operation->data->IoStatus.Status = STATUS_ACCESS_DENIED;
 		status = FLT_PREOP_COMPLETE;
 		LOG_MSG("DENIED");
